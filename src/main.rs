@@ -1,6 +1,4 @@
 use std::collections::HashMap;
-use std::io::Read;
-use std::str::FromStr;
 
 fn main() {
     let action = std::env::args().nth(1).expect("Please specify an action");
@@ -42,16 +40,16 @@ impl Todo {
         let f = std::fs::OpenOptions::new()
             .write(true)
             .create(true)
-            .open(db.json);
+            .open("db.json")?;
 
         // write to file with serde_json
         serde_json::to_writer_pretty(f, &self.map)?;
 
-        OK(())
+        Ok(())
     }
 
     fn new() -> Result<Todo, std::io::Error> {
-        let mut f = std::fs::OpenOptions::new()
+        let  f = std::fs::OpenOptions::new()
             .write(true)
             .create(true)
             .read(true)
@@ -59,8 +57,8 @@ impl Todo {
         // serialize json as HashMap
         match serde_json::from_reader(f) {
             Ok(map) => Ok(Todo { map }),
-            Err(e) if e.is_eof() => OK(Todo { map: HashMap::new() }),
-            Err(e) => panic!("An error occurred: {}" e)
+            Err(e) if e.is_eof() => Ok(Todo { map: HashMap::new() }),
+            Err(e) => panic!("An error occurred: {}", e)
         }
 
     }
