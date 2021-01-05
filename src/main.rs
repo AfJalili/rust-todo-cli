@@ -56,34 +56,12 @@ impl Todo {
         // serialize json as HashMap
         match serde_json::from_reader(f) {
             Ok(map) => Ok(Todo { map }),
-            Err(e) => if e.is_eof() => OK(Todo { map: HashMap::new() }),
-            Err(e) => panic!("An error occurred: {}" e);
+            Err(e) if e.is_eof() => OK(Todo { map: HashMap::new() }),
+            Err(e) => panic!("An error occurred: {}" e)
         }
 
     }
-// Another impl for new method
-/*    fn new() -> Result<Todo, std::io::Error> {
-        let mut f = std::fs::OpenOptions::new()
-            .write(true)
-            .create(true)
-            .read(true)
-            .open("db.txt")?;
-        let mut content = String::new();
-        f.read_to_string(&mut content)?;
-        let mut map: HashMap<String, bool> = HashMap::new();
 
-        for entry in  content.lines() {
-            let mut values = entry.split('\n');
-            let key = values.next().expect("No key");
-            let val = values.next().expect("No value");
-
-            map.insert(String::from(key), bool::from_str(val).unwrap());
-
-        }
-
-        Ok(Todo { map })
-    }
-*/
 
     fn complete(&mut self, key: &String) -> Option<()> {
         match self.map.get_mut(key) {
