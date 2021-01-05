@@ -38,13 +38,16 @@ impl Todo {
         self.map.insert(key, true);
     }
 
-    fn save(self) -> Result<(), std::io::Error> {
-        let mut content = String::new();
-        for (k, v) in self.map {
-            let record = format!("{}\t{}\n", k, v);
-            content.push_str(&record);
-        }
-        std::fs::write("db.txt", content)
+    fn save(self) -> Result<(),Box<dyn std::error::Error>> {
+        let f = std::fs::OpenOptions::new()
+            .write(true)
+            .create(true)
+            .open(true);
+
+        // write to file with serde_json
+        serde_json::to_writer_pretty(f, &self.map)?;
+
+        OK(())
     }
 
     fn new() -> Result<Todo, std::io::Error> {
