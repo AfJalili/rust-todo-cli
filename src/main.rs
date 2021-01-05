@@ -52,19 +52,14 @@ impl Todo {
             .write(true)
             .create(true)
             .read(true)
-            .open("db.txt")?;
+            .open("db.json")?;
+        // serialize json as HashMap
+        match serde_json::from_reader(f) {
+            Ok(map) => Ok(Todo { map }),
+            Err(e) => if e.is_eof() => OK(Todo { map: HashMap::new() }),
+            Err(e) => panic!("An error occurred: {}" e);
+        }
 
-        let mut content = String::new();
-        f.read_to_string(&mut content)?;
-        
-        let map: HashMap<String, bool> = content.
-            lines()
-            .map(|line| line.splitn(2, '\t').collect::<Vec<&str>>())
-            .map(|v| (v[0], v[1]))
-            .map(|(k, v)| (String::from(k), bool::from_str(v).unwrap()))
-            .collect();
-
-        Ok(Todo { map })
     }
 // Another impl for new method
 /*    fn new() -> Result<Todo, std::io::Error> {
